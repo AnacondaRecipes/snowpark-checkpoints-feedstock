@@ -1,0 +1,13 @@
+build_env_vars:
+  ANACONDA_ROCKET_ENABLE_PY313: yes
+
+upload_channels:
+  - sfe1ed40
+
+channels:
+  - https://staging.continuum.io/prefect/fs/stringcase-feedstock/pr3/5d83999
+  - https://staging.continuum.io/prefect/fs/simpleeval-feedstock/pr2/f455ff6
+  - https://staging.continuum.io/prefect/fs/marko-feedstock/pr2/44e6c7b
+  - https://staging.continuum.io/prefect/fs/frictionless-feedstock/pr2/072cb23
+  - https://staging.continuum.io/prefect/fs/pandera-feedstock/pr2/3f87498
+  - https://staging.continuum.io/prefect/fs/pandera-report-feedstock/pr1/c3b128c
