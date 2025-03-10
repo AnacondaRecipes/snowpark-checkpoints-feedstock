@@ -6,7 +6,7 @@ package:
   version: {{ version }}
 
 source:
-  url: https://github.com/snowflakedb/snowpark-checkpoints/archive/refs/tags/v{{ version }}.tar.gz
+  url: https://github.com/snowflakedb/{{ name }}/archive/refs/tags/v{{ version }}.tar.gz
   sha256: 7b679220e33451d97dc3c1ba720d35c16aaae7297e5e4875cc43390fb5d85913
 
 build:
@@ -81,7 +81,7 @@ about:
   home: https://github.com/snowflakedb/snowpark-checkpoints
   summary: Snowflake Snowpark Checkpoints
   dev_url: https://github.com/snowflakedb/snowpark-checkpoints
-  doc_url: https://docs.snowflake.com/
+  doc_url: https://docs.snowflake.com/en/developer-guide/snowpark/python/snowpark-checkpoints-library
   license: Apache-2.0
   license_family: Apache
   license_file: LICENSE
