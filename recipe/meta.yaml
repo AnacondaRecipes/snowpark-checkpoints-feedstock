@@ -1,0 +1,94 @@
+{% set name = "snowpark-checkpoints" %}
+{% set version = "0.1.3" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  url: https://github.com/snowflakedb/{{ name }}/archive/refs/tags/v{{ version }}.tar.gz
+  sha256: 7b679220e33451d97dc3c1ba720d35c16aaae7297e5e4875cc43390fb5d85913
+
+build:
+  skip: True  # [py<39 or py>311 or s390x]
+  script: {{ PYTHON }} -m pip install . -vvv --no-deps --no-build-isolation
+  number: 100
+
+requirements:
+  host:
+    - python
+    - hatchling
+    - pip
+    - wheel
+  run:
+    - python
+    - pyspark
+    - pandera-io ==0.20.4
+    - hypothesis
+    - snowflake-snowpark-python ==1.26.0
+    - snowflake-connector-python
+    - pandera-report ==0.1.2
+
+# Tests from snowpark-checkpoints-validators/test that require connection with snowflake
+{% set tests_to_skip_validators = "test_input" %}
+{% set tests_to_skip_validators = tests_to_skip_validators + " or test_input_fail" %}
+{% set tests_to_skip_validators = tests_to_skip_validators + " or test_output" %}
+{% set tests_to_skip_validators = tests_to_skip_validators + " or test_output_fail" %}
+{% set tests_to_skip_validators = tests_to_skip_validators + " or test_df_check" %}
+{% set tests_to_skip_validators = tests_to_skip_validators + " or test_df_check_fail" %}
+{% set tests_to_skip_validators = tests_to_skip_validators + " or test_df_check_from_file" %}
+{% set tests_to_skip_validators = tests_to_skip_validators + " or test_df_check_custom_check" %}
+{% set tests_to_skip_validators = tests_to_skip_validators + " or test_df_check_skip_check" %}
+{% set tests_to_skip_validators = tests_to_skip_validators + " or test_df_mode_dataframe" %}
+{% set tests_to_skip_validators = tests_to_skip_validators + " or test_df_mode_dataframe_mismatch" %}
+{% set tests_to_skip_validators = tests_to_skip_validators + " or test_df_mode_dataframe_job_none" %}
+{% set tests_to_skip_validators = tests_to_skip_validators + " or test_df_mode_dataframe_invalid_mode" %}
+{% set tests_to_skip_validators = tests_to_skip_validators + " or test_spark_checkpoint_scalar_passing" %}
+{% set tests_to_skip_validators = tests_to_skip_validators + " or test_spark_checkpoint_scalar_fail" %}
+{% set tests_to_skip_validators = tests_to_skip_validators + " or test_spark_checkpoint_df_pass" %}
+{% set tests_to_skip_validators = tests_to_skip_validators + " or test_spark_checkpoint_df_fail" %}
+{% set tests_to_skip_validators = tests_to_skip_validators + " or test_spark_checkpoint_limit_sample" %}
+{% set tests_to_skip_validators = tests_to_skip_validators + " or test_spark_checkpoint_random_sample" %}
+
+test:
+  source_files:
+    - snowpark-checkpoints-collectors/test
+    - snowpark-checkpoints-configuration/test
+    - snowpark-checkpoints-hypothesis/test
+    - snowpark-checkpoints-validators/test
+  imports:
+    - snowflake.snowpark_checkpoints
+    - snowflake.snowpark_checkpoints_collector
+    - snowflake.snowpark_checkpoints_configuration
+    - snowflake.hypothesis_snowpark
+  commands:
+    - pip check
+    # Skipping snowpark-checkpoints-collectors/test as most of the tests require Java gateway
+    # - pytest -vv snowpark-checkpoints-collectors/test
+    - pytest -vv snowpark-checkpoints-configuration/test
+    # snowpark-checkpoints-validators/test/unit/test_spark_migration.py - require Java gateway
+    - pytest -vv snowpark-checkpoints-validators/test -k "not ({{ tests_to_skip_validators }})" --ignore="snowpark-checkpoints-validators/test/unit/test_spark_migration.py"
+    # Needs cd-ing as it's using resources inside with relative paths
+    # test/integ/test_strategies.py - missing some resources
+    # test/unit/test_strategies_utils.py - trying to connect with snowflake
+    - cd snowpark-checkpoints-hypothesis && pytest -vv test --ignore="test/integ/test_strategies.py" --ignore="test/unit/test_strategies_utils.py" -k "not test_pandera_dtype_to_snowpark_dtype_long"
+  requires:
+    - pip
+    - pytest
+    - deepdiff
+
+about:
+  home: https://github.com/snowflakedb/snowpark-checkpoints
+  summary: Snowflake Snowpark Checkpoints
+  dev_url: https://github.com/snowflakedb/snowpark-checkpoints
+  doc_url: https://docs.snowflake.com/en/developer-guide/snowpark/python/snowpark-checkpoints-library
+  license: Apache-2.0
+  license_family: Apache
+  license_file: LICENSE
+  description: |
+    The snowpark-checkpoints package is a testing library that will help you validate your migrated Snowpark
+    code and discover any behavioral differences with the original Apache PySpark code.
+
+extra:
+  recipe-maintainers:
+    - Cansisti
