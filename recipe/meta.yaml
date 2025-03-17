@@ -1,5 +1,5 @@
 {% set name = "snowpark-checkpoints" %}
-{% set version = "0.1.3" %}
+{% set version = "0.1.4" %}
 
 package:
   name: {{ name|lower }}
@@ -7,7 +7,7 @@ package:
 
 source:
   url: https://github.com/snowflakedb/{{ name }}/archive/refs/tags/v{{ version }}.tar.gz
-  sha256: 7b679220e33451d97dc3c1ba720d35c16aaae7297e5e4875cc43390fb5d85913
+  sha256: f81ea8a6fa3ffc94e2029771f4f0bc1f8fb00742b0295745a99f285368daa98a
 
 build:
   skip: True  # [py<39 or py>311 or s390x]
