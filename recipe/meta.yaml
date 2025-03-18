@@ -1,5 +1,5 @@
 {% set name = "snowpark-checkpoints" %}
-{% set version = "0.1.3" %}
+{% set version = "0.1.4" %}
 
 package:
   name: {{ name|lower }}
@@ -7,9 +7,11 @@ package:
 
 source:
   url: https://github.com/snowflakedb/{{ name }}/archive/refs/tags/v{{ version }}.tar.gz
-  sha256: 7b679220e33451d97dc3c1ba720d35c16aaae7297e5e4875cc43390fb5d85913
+  sha256: f81ea8a6fa3ffc94e2029771f4f0bc1f8fb00742b0295745a99f285368daa98a
 
 build:
+  # https://github.com/snowflakedb/snowpark-checkpoints/blob/v0.1.4/pyproject.toml#L15
+  # From the upstream repository: requires-python = '>=3.9,<3.12'
   skip: True  # [py<39 or py>311 or s390x]
   script: {{ PYTHON }} -m pip install . -vvv --no-deps --no-build-isolation
   number: 100
@@ -22,12 +24,12 @@ requirements:
     - wheel
   run:
     - python
-    - pyspark
     - pandera-io ==0.20.4
     - hypothesis
-    - snowflake-snowpark-python ==1.26.0
+    - snowflake-snowpark-python >=1.23.0
     - snowflake-connector-python
-    - pandera-report ==0.1.2
+  run_constrained:
+    - pyspark >=3.5.0
 
 # Tests from snowpark-checkpoints-validators/test that require connection with snowflake
 {% set tests_to_skip_validators = "test_input" %}
@@ -76,6 +78,7 @@ test:
     - pip
     - pytest
     - deepdiff
+    - pyspark >=3.5.0
 
 about:
   home: https://github.com/snowflakedb/snowpark-checkpoints
