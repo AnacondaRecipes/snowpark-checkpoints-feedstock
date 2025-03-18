@@ -24,7 +24,6 @@ requirements:
     - wheel
   run:
     - python
-    - pyspark
     - pandera-io ==0.20.4
     - hypothesis
     - snowflake-snowpark-python ==1.23.0
