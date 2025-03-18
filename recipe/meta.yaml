@@ -78,6 +78,7 @@ test:
     - pip
     - pytest
     - deepdiff
+    - pyspark >=3.5.0
 
 about:
   home: https://github.com/snowflakedb/snowpark-checkpoints
