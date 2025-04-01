@@ -1,5 +1,5 @@
 {% set name = "snowpark-checkpoints" %}
-{% set version = "0.1.4" %}
+{% set version = "0.2.0" %}
 
 package:
   name: {{ name|lower }}
@@ -7,7 +7,7 @@ package:
 
 source:
   url: https://github.com/snowflakedb/{{ name }}/archive/refs/tags/v{{ version }}.tar.gz
-  sha256: f81ea8a6fa3ffc94e2029771f4f0bc1f8fb00742b0295745a99f285368daa98a
+  sha256: f1b82f1bc326d793347d06f164f2e4371ebb7050c8f52b6cc4fbf0824450ccc8
 
 build:
   # https://github.com/snowflakedb/snowpark-checkpoints/blob/v0.1.4/pyproject.toml#L15
@@ -51,6 +51,9 @@ requirements:
 {% set tests_to_skip_validators = tests_to_skip_validators + " or test_spark_checkpoint_df_fail" %}
 {% set tests_to_skip_validators = tests_to_skip_validators + " or test_spark_checkpoint_limit_sample" %}
 {% set tests_to_skip_validators = tests_to_skip_validators + " or test_spark_checkpoint_random_sample" %}
+# Tests requiring Java gateway
+{% set tests_to_skip_validators = tests_to_skip_validators + " or test_mark_pass_log_results_disabled" %}
+{% set tests_to_skip_validators = tests_to_skip_validators + " or test_mark_fail_log_results_disabled" %}
 
 test:
   source_files:
