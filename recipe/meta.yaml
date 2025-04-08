@@ -1,5 +1,5 @@
 {% set name = "snowpark-checkpoints" %}
-{% set version = "0.2.0" %}
+{% set version = "0.2.1" %}
 
 package:
   name: {{ name|lower }}
@@ -7,10 +7,10 @@ package:
 
 source:
   url: https://github.com/snowflakedb/{{ name }}/archive/refs/tags/v{{ version }}.tar.gz
-  sha256: f1b82f1bc326d793347d06f164f2e4371ebb7050c8f52b6cc4fbf0824450ccc8
+  sha256: b0c58f47d2b921e94d3bdc12f8531cb34c2a84e50caa401ab6ee7292515aed95
 
 build:
-  # https://github.com/snowflakedb/snowpark-checkpoints/blob/v0.1.4/pyproject.toml#L15
+  # https://github.com/snowflakedb/snowpark-checkpoints/blob/v0.2.1/pyproject.toml#L15
   # From the upstream repository: requires-python = '>=3.9,<3.12'
   skip: True  # [py<39 or py>311 or s390x]
   script: {{ PYTHON }} -m pip install . -vvv --no-deps --no-build-isolation
