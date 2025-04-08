@@ -7,7 +7,7 @@ package:
 
 source:
   url: https://github.com/snowflakedb/{{ name }}/archive/refs/tags/v{{ version }}.tar.gz
-  sha256: b0c58f47d2b921e94d3bdc12f8531cb34c2a84e50caa401ab6ee7292515aed95
+  sha256: 7112de4a13a8d34e399c0959b716c95ab31d988cf96c0dbf6216dd9e7a5d45a5
 
 build:
   # https://github.com/snowflakedb/snowpark-checkpoints/blob/v0.2.1/pyproject.toml#L15
