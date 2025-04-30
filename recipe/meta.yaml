@@ -1,5 +1,5 @@
 {% set name = "snowpark-checkpoints" %}
-{% set version = "0.2.1" %}
+{% set version = "0.3.0" %}
 
 package:
   name: {{ name|lower }}
@@ -7,10 +7,10 @@ package:
 
 source:
   url: https://github.com/snowflakedb/{{ name }}/archive/refs/tags/v{{ version }}.tar.gz
-  sha256: 7112de4a13a8d34e399c0959b716c95ab31d988cf96c0dbf6216dd9e7a5d45a5
+  sha256: f29e0a30d0382195a2c1e4cbe5705cb281b85a977768c2e25c9addc7a5ed017b
 
 build:
-  # https://github.com/snowflakedb/snowpark-checkpoints/blob/v0.2.1/pyproject.toml#L15
+  # https://github.com/snowflakedb/snowpark-checkpoints/blob/v0.3.0/pyproject.toml#L15
   # From the upstream repository: requires-python = '>=3.9,<3.12'
   skip: True  # [py<39 or py>311]
   script: {{ PYTHON }} -m pip install . -vvv --no-deps --no-build-isolation
@@ -27,6 +27,7 @@ requirements:
     - hypothesis
     - snowflake-snowpark-python >=1.23.0
     - snowflake-connector-python
+    - pydantic >=2.0
   run_constrained:
     - pyspark >=3.5.0
 
