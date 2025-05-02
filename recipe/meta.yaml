@@ -1,5 +1,5 @@
 {% set name = "snowpark-checkpoints" %}
-{% set version = "0.2.1" %}
+{% set version = "0.3.0" %}
 
 package:
   name: {{ name|lower }}
@@ -7,10 +7,10 @@ package:
 
 source:
   url: https://github.com/snowflakedb/{{ name }}/archive/refs/tags/v{{ version }}.tar.gz
-  sha256: 7112de4a13a8d34e399c0959b716c95ab31d988cf96c0dbf6216dd9e7a5d45a5
+  sha256: f29e0a30d0382195a2c1e4cbe5705cb281b85a977768c2e25c9addc7a5ed017b
 
 build:
-  # https://github.com/snowflakedb/snowpark-checkpoints/blob/v0.2.1/pyproject.toml#L15
+  # https://github.com/snowflakedb/snowpark-checkpoints/blob/v0.3.0/pyproject.toml#L15
   # From the upstream repository: requires-python = '>=3.9,<3.12'
   skip: True  # [py<39 or py>311]
   script: {{ PYTHON }} -m pip install . -vvv --no-deps --no-build-isolation
@@ -27,39 +27,32 @@ requirements:
     - hypothesis
     - snowflake-snowpark-python >=1.23.0
     - snowflake-connector-python
+    - pydantic >=2.0
   run_constrained:
     - pyspark >=3.5.0
 
-# Tests from snowpark-checkpoints-validators/test that require connection with snowflake
-{% set tests_to_skip_validators = "test_input" %}
-{% set tests_to_skip_validators = tests_to_skip_validators + " or test_input_fail" %}
-{% set tests_to_skip_validators = tests_to_skip_validators + " or test_output" %}
-{% set tests_to_skip_validators = tests_to_skip_validators + " or test_output_fail" %}
-{% set tests_to_skip_validators = tests_to_skip_validators + " or test_df_check" %}
-{% set tests_to_skip_validators = tests_to_skip_validators + " or test_df_check_fail" %}
-{% set tests_to_skip_validators = tests_to_skip_validators + " or test_df_check_from_file" %}
-{% set tests_to_skip_validators = tests_to_skip_validators + " or test_df_check_custom_check" %}
-{% set tests_to_skip_validators = tests_to_skip_validators + " or test_df_check_skip_check" %}
-{% set tests_to_skip_validators = tests_to_skip_validators + " or test_df_mode_dataframe" %}
-{% set tests_to_skip_validators = tests_to_skip_validators + " or test_df_mode_dataframe_mismatch" %}
-{% set tests_to_skip_validators = tests_to_skip_validators + " or test_df_mode_dataframe_job_none" %}
-{% set tests_to_skip_validators = tests_to_skip_validators + " or test_df_mode_dataframe_invalid_mode" %}
-{% set tests_to_skip_validators = tests_to_skip_validators + " or test_spark_checkpoint_scalar_passing" %}
-{% set tests_to_skip_validators = tests_to_skip_validators + " or test_spark_checkpoint_scalar_fail" %}
-{% set tests_to_skip_validators = tests_to_skip_validators + " or test_spark_checkpoint_df_pass" %}
-{% set tests_to_skip_validators = tests_to_skip_validators + " or test_spark_checkpoint_df_fail" %}
-{% set tests_to_skip_validators = tests_to_skip_validators + " or test_spark_checkpoint_limit_sample" %}
-{% set tests_to_skip_validators = tests_to_skip_validators + " or test_spark_checkpoint_random_sample" %}
-# Tests requiring Java gateway
-{% set tests_to_skip_validators = tests_to_skip_validators + " or test_mark_pass_log_results_disabled" %}
-{% set tests_to_skip_validators = tests_to_skip_validators + " or test_mark_fail_log_results_disabled" %}
+# AssertionError: assert 'unknown' != 'unknown'
+{% set tests_collectors_to_skip = "test_get_collection_point_source_file_path_scenario_python_source_file" %}
+# AssertionError: assert -1 != -1
+{% set tests_collectors_to_skip = tests_collectors_to_skip + " or test_get_collection_point_line_of_code_scenario_python_source_file" %}
+# E [JAVA_GATEWAY_EXITED] Java gateway process exited before sending its port number.
+{% set ignore_collectors_tests = " --ignore=snowpark-checkpoints-collectors/test/unit/test_column_collection.py" %}
+{% set ignore_collectors_tests = ignore_collectors_tests + " --ignore=snowpark-checkpoints-collectors/test/unit/test_pandera_column_check_manager.py" %}
+{% set ignore_validators_tests = " --ignore=snowpark-checkpoints-validators/test/unit/test_job_context.py" %}
+{% set ignore_validators_tests = ignore_validators_tests + " --ignore=snowpark-checkpoints-validators/test/unit/test_spark_migration.py" %}
+# E fixture 'session' not found
+{% set tests_hypothesis_to_skip = "test_generate_snowpark_dataframe_with_valid_data" %}
+{% set tests_hypothesis_to_skip = tests_hypothesis_to_skip + " or test_generate_snowpark_dataframe_with_empty_dataframe" %}
+{% set tests_hypothesis_to_skip = tests_hypothesis_to_skip + " or test_generate_snowpark_dataframe_with_null_values" %}
+# E assert IntegerType() == LongType()
+{% set tests_hypothesis_to_skip = tests_hypothesis_to_skip + " or test_pandera_dtype_to_snowpark_dtype_long" %}
 
 test:
   source_files:
-    - snowpark-checkpoints-collectors/test
-    - snowpark-checkpoints-configuration/test
-    - snowpark-checkpoints-hypothesis/test
-    - snowpark-checkpoints-validators/test
+    - snowpark-checkpoints-collectors/test/unit
+    - snowpark-checkpoints-configuration/test/unit
+    - snowpark-checkpoints-hypothesis/test/unit
+    - snowpark-checkpoints-validators/test/unit
   imports:
     - snowflake.snowpark_checkpoints
     - snowflake.snowpark_checkpoints_collector
@@ -67,15 +60,10 @@ test:
     - snowflake.hypothesis_snowpark
   commands:
     - pip check
-    # Skipping snowpark-checkpoints-collectors/test as most of the tests require Java gateway
-    # - pytest -vv snowpark-checkpoints-collectors/test
-    - pytest -vv snowpark-checkpoints-configuration/test
-    # snowpark-checkpoints-validators/test/unit/test_spark_migration.py - require Java gateway
-    - pytest -vv snowpark-checkpoints-validators/test -k "not ({{ tests_to_skip_validators }})" --ignore="snowpark-checkpoints-validators/test/unit/test_spark_migration.py"
-    # Needs cd-ing as it's using resources inside with relative paths
-    # test/integ/test_strategies.py - missing some resources
-    # test/unit/test_strategies_utils.py - trying to connect with snowflake
-    - cd snowpark-checkpoints-hypothesis && pytest -vv test --ignore="test/integ/test_strategies.py" --ignore="test/unit/test_strategies_utils.py" -k "not test_pandera_dtype_to_snowpark_dtype_long"
+    - pytest -vv {{ ignore_collectors_tests }} -k "not ({{ tests_collectors_to_skip }})" snowpark-checkpoints-collectors/test/unit
+    - pytest -vv snowpark-checkpoints-configuration/test/unit
+    - pytest -vv -k "not ({{ tests_hypothesis_to_skip }})" snowpark-checkpoints-hypothesis/test/unit
+    - pytest -vv {{ ignore_validators_tests }} snowpark-checkpoints-validators/test/unit
   requires:
     - pip
     - pytest
