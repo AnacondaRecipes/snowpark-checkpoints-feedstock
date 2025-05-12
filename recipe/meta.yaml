@@ -58,6 +58,7 @@ test:
     - snowflake.snowpark_checkpoints_collector
     - snowflake.snowpark_checkpoints_configuration
     - snowflake.hypothesis_snowpark
+    - snowflake.snowpark_checkpoints.io_utils
   commands:
     - pip check
     - pytest -vv {{ ignore_collectors_tests }} -k "not ({{ tests_collectors_to_skip }})" snowpark-checkpoints-collectors/test/unit
