@@ -1,5 +1,5 @@
 {% set name = "snowpark-checkpoints" %}
-{% set version = "0.3.0" %}
+{% set version = "0.3.1" %}
 
 package:
   name: {{ name|lower }}
@@ -7,10 +7,10 @@ package:
 
 source:
   url: https://github.com/snowflakedb/{{ name }}/archive/refs/tags/v{{ version }}.tar.gz
-  sha256: f29e0a30d0382195a2c1e4cbe5705cb281b85a977768c2e25c9addc7a5ed017b
+  sha256: c6ddd5c8aacbf13a65e62871e750289973ddc4f88baebb96b5cc33426263faa8
 
 build:
-  # https://github.com/snowflakedb/snowpark-checkpoints/blob/v0.3.0/pyproject.toml#L15
+  # https://github.com/snowflakedb/snowpark-checkpoints/blob/v0.3.1/pyproject.toml#L15
   # From the upstream repository: requires-python = '>=3.9,<3.12'
   skip: True  # [py<39 or py>311]
   script: {{ PYTHON }} -m pip install . -vvv --no-deps --no-build-isolation
@@ -58,6 +58,7 @@ test:
     - snowflake.snowpark_checkpoints_collector
     - snowflake.snowpark_checkpoints_configuration
     - snowflake.hypothesis_snowpark
+    - snowflake.snowpark_checkpoints.io_utils
   commands:
     - pip check
     - pytest -vv {{ ignore_collectors_tests }} -k "not ({{ tests_collectors_to_skip }})" snowpark-checkpoints-collectors/test/unit
