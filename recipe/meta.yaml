@@ -1,5 +1,5 @@
 {% set name = "snowpark-checkpoints" %}
-{% set version = "0.3.2" %}
+{% set version = "0.3.3" %}
 
 package:
   name: {{ name|lower }}
@@ -7,10 +7,10 @@ package:
 
 source:
   url: https://github.com/snowflakedb/{{ name }}/archive/refs/tags/v{{ version }}.tar.gz
-  sha256: 784063ddacd17cc273be38297b701254c8fa8b80c1b9323ef1515d8beaf722bd
+  sha256: e891f2bbccfce886f0ce0007e898597643c74e552310da402b4dd1f19f709b8d
 
 build:
-  # https://github.com/snowflakedb/snowpark-checkpoints/blob/v0.3.2/pyproject.toml#L15
+  # https://github.com/snowflakedb/snowpark-checkpoints/blob/v0.3.3/pyproject.toml#L15
   # From the upstream repository: requires-python = '>=3.9,<3.12'
   skip: True  # [py<39 or py>311]
   script: {{ PYTHON }} -m pip install . -vvv --no-deps --no-build-isolation
@@ -38,6 +38,7 @@ requirements:
 # E [JAVA_GATEWAY_EXITED] Java gateway process exited before sending its port number.
 {% set ignore_collectors_tests = " --ignore=snowpark-checkpoints-collectors/test/unit/test_column_collection.py" %}
 {% set ignore_collectors_tests = ignore_collectors_tests + " --ignore=snowpark-checkpoints-collectors/test/unit/test_pandera_column_check_manager.py" %}
+{% set ignore_collectors_tests = ignore_collectors_tests + " --ignore=snowpark-checkpoints-collectors/test/unit/test_summary_stats_collector.py" %}
 {% set ignore_validators_tests = " --ignore=snowpark-checkpoints-validators/test/unit/test_job_context.py" %}
 {% set ignore_validators_tests = ignore_validators_tests + " --ignore=snowpark-checkpoints-validators/test/unit/test_spark_migration.py" %}
 # E fixture 'session' not found
