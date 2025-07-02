@@ -1,5 +1,5 @@
 {% set name = "snowpark-checkpoints" %}
-{% set version = "0.3.3" %}
+{% set version = "0.4.0" %}
 
 package:
   name: {{ name|lower }}
@@ -7,10 +7,10 @@ package:
 
 source:
   url: https://github.com/snowflakedb/{{ name }}/archive/refs/tags/v{{ version }}.tar.gz
-  sha256: e891f2bbccfce886f0ce0007e898597643c74e552310da402b4dd1f19f709b8d
+  sha256: e1bd9ff9c8cc888872f51b9a0bfe62954984913a035c65fb4ce0c9eeb6706ebd
 
 build:
-  # https://github.com/snowflakedb/snowpark-checkpoints/blob/v0.3.3/pyproject.toml#L15
+  # https://github.com/snowflakedb/snowpark-checkpoints/blob/v0.4.0/pyproject.toml#L15
   # From the upstream repository: requires-python = '>=3.9,<3.12'
   skip: True  # [py<39 or py>311]
   script: {{ PYTHON }} -m pip install . -vvv --no-deps --no-build-isolation
@@ -56,10 +56,49 @@ test:
     - snowpark-checkpoints-validators/test/unit
   imports:
     - snowflake.snowpark_checkpoints
-    - snowflake.snowpark_checkpoints_collector
-    - snowflake.snowpark_checkpoints_configuration
-    - snowflake.hypothesis_snowpark
+    - snowflake.snowpark_checkpoints.checkpoint
+    - snowflake.snowpark_checkpoints.errors
     - snowflake.snowpark_checkpoints.io_utils
+    - snowflake.snowpark_checkpoints.io_utils.io_default_strategy
+    - snowflake.snowpark_checkpoints.io_utils.io_env_strategy
+    - snowflake.snowpark_checkpoints.io_utils.io_file_manager
+    - snowflake.snowpark_checkpoints.job_context
+    - snowflake.snowpark_checkpoints.singleton
+    - snowflake.snowpark_checkpoints.snowpark_sampler
+    - snowflake.snowpark_checkpoints.spark_migration
+    - snowflake.snowpark_checkpoints.utils
+    - snowflake.snowpark_checkpoints.validation_result_metadata
+    - snowflake.snowpark_checkpoints.validation_results
+    - snowflake.snowpark_checkpoints_collector
+    - snowflake.snowpark_checkpoints_collector.collection_common
+    - snowflake.snowpark_checkpoints_collector.collection_result.model
+    - snowflake.snowpark_checkpoints_collector.collection_result.model.collection_point_result
+    - snowflake.snowpark_checkpoints_collector.collection_result.model.collection_point_result_manager
+    - snowflake.snowpark_checkpoints_collector.column_collection
+    - snowflake.snowpark_checkpoints_collector.column_pandera_checks
+    - snowflake.snowpark_checkpoints_collector.io_utils
+    - snowflake.snowpark_checkpoints_collector.singleton
+    - snowflake.snowpark_checkpoints_collector.snow_connection_model
+    - snowflake.snowpark_checkpoints_collector.summary_stats_collector
+    - snowflake.snowpark_checkpoints_collector.utils
+    - snowflake.snowpark_checkpoints_collector.utils.extra_config
+    - snowflake.snowpark_checkpoints_collector.utils.logging_utils
+    - snowflake.snowpark_checkpoints_collector.utils.telemetry
+    - snowflake.snowpark_checkpoints_configuration
+    - snowflake.snowpark_checkpoints_configuration.checkpoint_metadata
+    - snowflake.snowpark_checkpoints_configuration.io_utils
+    - snowflake.snowpark_checkpoints_configuration.model.checkpoints
+    - snowflake.snowpark_checkpoints_configuration.singleton
+    - snowflake.hypothesis_snowpark
+    - snowflake.hypothesis_snowpark.constants
+    - snowflake.hypothesis_snowpark.custom_strategies
+    - snowflake.hypothesis_snowpark.datatype_mapper
+    - snowflake.hypothesis_snowpark.io_utils
+    - snowflake.hypothesis_snowpark.logging_utils
+    - snowflake.hypothesis_snowpark.singleton
+    - snowflake.hypothesis_snowpark.strategies
+    - snowflake.hypothesis_snowpark.strategies_utils
+    - snowflake.hypothesis_snowpark.strategy_register
   commands:
     - pip check
     - pytest -vv {{ ignore_collectors_tests }} -k "not ({{ tests_collectors_to_skip }})" snowpark-checkpoints-collectors/test/unit
@@ -68,8 +107,9 @@ test:
     - pytest -vv {{ ignore_validators_tests }} snowpark-checkpoints-validators/test/unit
   requires:
     - pip
-    - pytest
-    - deepdiff
+    - pytest >=8.3.3
+    # upstream deepdiff >=8.0.0, but only 7.0.1 is available in main.
+    - deepdiff >=7.0.1
     - pyspark >=3.5.0
 
 about:
